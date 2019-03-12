@@ -5,6 +5,10 @@ import axios from "axios";
 import BookTable from "./BookTable";
 import Loading from "./Loading";
 
+import {connect} from "react-redux";
+import * as actionCreators from "./store/actions/index";
+
+
 const instance = axios.create({
   baseURL: "https://the-index-api.herokuapp.com"
 });
@@ -12,11 +16,13 @@ const instance = axios.create({
 class AuthorDetail extends Component {
   state = {
     author: null,
-    loading: true
+    loading: false
   };
 
   componentDidMount() {
-    this.getAuthor();
+    // this.getAuthor();
+    const authorID = this.props.match.params.authorID;
+    this.props.fetchAuthorDetail(authorID)
   }
 
   componentDidUpdate(prevProps) {
@@ -42,7 +48,7 @@ class AuthorDetail extends Component {
     if (this.state.loading) {
       return <Loading />;
     } else {
-      const author = this.state.author;
+      const author = this.props.author;
       const authorName = `${author.first_name} ${author.last_name}`;
       return (
         <div className="author">
@@ -60,5 +66,17 @@ class AuthorDetail extends Component {
     }
   }
 }
+const mapStateToProps = state => {
+  return {
+    author: state.rootAuthor.author,
+  };
+};
 
-export default AuthorDetail;
+const mapDispatchToProps = dispatch => {
+  return {
+    fetchAllAuthors: (authID) =>
+      dispatch(actionCreators.fetchAuthorDetail(authID))
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(AuthorDetail);
